@@ -12,12 +12,15 @@ class Database:
         self.connection.close()
 
     def add_password(self, service, password):
-        result = self.cursor.execute(
-            "INSERT INTO passwords (service, password) VALUES (?, ?)",
-            (service, password),
-        )
-        self.connection.commit()
-        return result
+        try:
+            result = self.cursor.execute(
+                "INSERT INTO passwords (service, password) VALUES (?, ?)",
+                (service, password),
+            )
+            self.connection.commit()
+            return result
+        except sqlite3.IntegrityError:
+            return None
 
     def get_password(self, service):
         self.cursor.execute(

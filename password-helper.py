@@ -24,11 +24,11 @@ def add_password(service, password):
 
     passwords = Database()
     cursor = passwords.add_password(service, encrypted_password)
-    rows = cursor.rowcount
+    if cursor is None:
+        print(f"Password for service: {service} already exists.", file=sys.stderr)
+        sys.exit(1)
 
     passwords.close()
-
-    return rows
 
 
 def get_password(service):
@@ -71,14 +71,7 @@ def main():
             print(f"Password for service: {args[1]} has been deleted.")
             return
 
-        rows = add_password(args[0], args[1])
-        if rows == 0:
-            print(
-                f"Password for service: {args[0]} could not been added.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
+        add_password(args[0], args[1])
         print(f"Password for service: {args[0]} has been encrypted and saved.")
         return
 
