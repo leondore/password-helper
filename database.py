@@ -1,12 +1,20 @@
-import sqlite3
+import sqlite3, os, sys
 
 
 class Database:
-    DB_NAME = "/home/ldore/projects/password-helper/passwords.db"
+    DB_LOCATION = os.getenv("DB_PASSWORDS")
 
     def __init__(self):
-        self.connection = sqlite3.connect(Database.DB_NAME)
-        self.cursor = self.connection.cursor()
+        try:
+            if Database.DB_LOCATION is None:
+                raise NameError("DB_PASSWORDS not found in environment variables")
+
+            self.connection = sqlite3.connect(Database.DB_LOCATION)
+            self.cursor = self.connection.cursor()
+
+        except NameError as e:
+            print(e, file=sys.stderr)
+            sys.exit(1)
 
     def close(self):
         self.connection.close()
