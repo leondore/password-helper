@@ -12,14 +12,22 @@ class Database:
         self.connection.close()
 
     def add_password(self, service, password):
-        self.cursor.execute(
+        result = self.cursor.execute(
             "INSERT INTO passwords (service, password) VALUES (?, ?)",
             (service, password),
         )
         self.connection.commit()
+        return result
 
     def get_password(self, service):
         self.cursor.execute(
             "SELECT password FROM passwords WHERE service=?", (service,)
         )
         return self.cursor.fetchone()
+
+    def delete_password(self, service):
+        result = self.cursor.execute(
+            "DELETE FROM passwords WHERE service=?", (service,)
+        )
+        self.connection.commit()
+        return result

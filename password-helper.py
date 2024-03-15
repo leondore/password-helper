@@ -23,8 +23,12 @@ def add_password(service, password):
     encrypted_password = cipher_suite.encrypt(password.encode("utf-8"))
 
     passwords = Database()
-    passwords.add_password(service, encrypted_password)
+    cursor = passwords.add_password(service, encrypted_password)
+    rows = cursor.rowcount
+
     passwords.close()
+
+    return rows
 
 
 def get_password(service):
@@ -40,6 +44,16 @@ def get_password(service):
     return cipher_suite.decrypt(encrypted_password[0]).decode("utf-8")
 
 
+def delete_password(service):
+    passwords = Database()
+    cursor = passwords.delete_password(service)
+    rows = cursor.rowcount
+
+    passwords.close()
+
+    return rows
+
+
 def main():
     args = sys.argv[1:]
 
@@ -48,7 +62,23 @@ def main():
         sys.exit(1)
 
     if len(args) >= 2:
-        add_password(args[0], args[1])
+        if args[0] == "delete":
+            rows = delete_password(args[1])
+            if rows == 0:
+                print(f"No password was found for service: {args[1]}.", file=sys.stderr)
+                sys.exit(1)
+
+            print(f"Password for service: {args[1]} has been deleted.")
+            return
+
+        rows = add_password(args[0], args[1])
+        if rows == 0:
+            print(
+                f"Password for service: {args[0]} could not been added.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
         print(f"Password for service: {args[0]} has been encrypted and saved.")
         return
 
